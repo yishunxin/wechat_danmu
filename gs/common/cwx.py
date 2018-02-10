@@ -4,12 +4,14 @@ import requests
 from gs.conf import wx
 import json
 import logging
+from gs.common import clogger
 
+clogger.init('danmu')
 logger = logging.getLogger('common')
 
 
 def get_access_token():
-    access_token = ''
+    access_token = '6_Anh0ZRmmpHH1mOwwJAdJGoCEJH-g1KGSdw9GLmCnh-L4PPJjlN5A241ctzMnRW1gtFS6XQEhG0lpSMnNArumxSYraeb0vwyZkSA0ZQR37fTG9uqJ2QXEuvO275BoKbJiSpJXCSfrR7GhAuFhRAVdAHAAJE'
     if access_token:
         return access_token
     access_token = refresh_access_token()
@@ -26,14 +28,15 @@ def refresh_access_token():
         return False
     access_token = data['access_token']
     expires_in = data['expires_in']
+    print access_token, expires_in
     return access_token
 
 
-def create_menu():
+def create_menu(memu):
     access_token = get_access_token()
     url = "https://{}/cgi-bin/menu/create?access_token={}".format(wx.API_HOST, access_token)
-    print json.dumps(wx.MENU, ensure_ascii=False).encode('utf8', 'ignore')
-    res = requests.post(url, data=json.dumps(wx.MENU, ensure_ascii=False).encode('utf8', 'ignore'),
+    print json.dumps(memu, ensure_ascii=False)
+    res = requests.post(url, data=json.dumps(memu, ensure_ascii=False).encode('utf8', 'ignore'),
                         headers={'content-type': 'application/json; charset=utf8'})
     print res.content
     return True
@@ -81,3 +84,36 @@ def send_template_message(msg):
                             headers={'content-type': 'application/json; charset=utf8'})
     logger.info(res.content)
     return True
+
+
+if __name__ == '__main__':
+    menu = {
+        "button": [
+            {
+                "type": "click",
+                "name": u"今日歌曲",
+                "key": "V1001_TODAY_MUSIC"
+            },
+            {
+                "name": u"菜单",
+                "sub_button": [
+                    {
+                        "type": "view",
+                        "name": u"搜索",
+                        "url": "http://www.soso.com/"
+                    },
+                    {
+                        "type": "miniprogram",
+                        "name": "wxa",
+                        "url": "http://mp.weixin.qq.com",
+                        "appid": "wx286b93c14bbf93aa",
+                        "pagepath": "pages/lunar/index"
+                    },
+                    {
+                        "type": "click",
+                        "name": u"赞一下我们",
+                        "key": "V1001_GOOD"
+                    }]
+            }]
+    }
+    create_menu(memu=menu)
